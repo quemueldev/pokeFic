@@ -1,0 +1,65 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+canvas {
+  display: block;
+  background-color: #000;
+  
+}
+
+.healer-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #101914b8;
+  color: #f7f0d7;
+  font-family: system-ui, sans-serif;
+}
+
+.healer-dialog-panel {
+  width: min(100%, 380px);
+  padding: 20px;
+  border: 2px solid #d5bd79;
+  border-radius: 10px;
+  background: #1d2b29;
+  box-shadow: 0 16px 48px #0008;
+}
+
+.healer-dialog-panel h1 {
+  margin-bottom: 12px;
+  font-size: 1.35rem;
+}
+
+.healer-dialog-panel p {
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.healer-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.healer-dialog-panel button {
+  padding: 10px 14px;
+  border: 1px solid #718268;
+  border-radius: 6px;
+  background: #33453c;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.healer-dialog-panel button:hover {
+  background: #40594a;
+}
+
+.healer-dialog-panel button.secondary {
+  background: transparent;
+}

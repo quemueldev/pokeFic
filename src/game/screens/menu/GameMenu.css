@@ -1,0 +1,105 @@
+.game-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: #101914b8;
+    color: #f7f0d7;
+    font-family: system-ui, sans-serif;
+}
+
+.game-menu-panel {
+    width: min(100%, 380px);
+    padding: 20px;
+    border: 2px solid #d5bd79;
+    border-radius: 10px;
+    background: #1d2b29;
+    box-shadow: 0 16px 48px #0008;
+}
+
+.game-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.game-menu-header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+}
+
+.menu-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.menu-option,
+.menu-back {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #718268;
+    border-radius: 6px;
+    background: #33453c;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-option:hover,
+.menu-back:hover {
+    background: #40594a;
+}
+
+.pokemon-list {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.pokemon-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid #536a4c;
+    border-radius: 6px;
+    background: #263733;
+}
+
+.pokemon-card img {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+}
+
+.pokemon-info {
+    display: grid;
+    gap: 3px;
+}
+
+.pokemon-info span {
+    color: #c4bd9f;
+    font-size: 0.85rem;
+}
+
+.menu-hint {
+    margin: 16px 0 0;
+    color: #c4bd9f;
+    font-size: 0.8rem;
+    text-align: center;
+}
