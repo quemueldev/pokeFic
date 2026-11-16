@@ -4,54 +4,100 @@ import "./App.css";
 import controller from "./AppController.jsx";
 import BattleScreen from "../screens/battle/BattleScreen.jsx";
 import GameMenu from "../screens/menu/GameMenu.jsx";
-import { playerParty } from "../../objects/player/party.js";
-import { getPokemonStats } from "../../objects/pokemon/stats.js";
-import { getPlayerOrCreate } from "../../services/db.js";
+import { getPlayerOrCreate, saveGame } from "../../services/db.js";
+import ChooseChicomonScreen from "../screens/chooseChicomon/choose.jsx";
+import { getParty } from "../../services/pokeChico_db.js";
+import { usePlayerParty } from "./usePlayerParty.js";
 
 function App() {
 
-    getPlayerOrCreate()
     const canvasRef = useRef(null);
     const gameRef = useRef(null);
     const [encounter, setEncounter] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [healerDialog, setHealerDialog] = useState(null);
-    const [party, setParty] = useState(() => playerParty.map((pokemon) => ({ ...pokemon })));
+    const [battleNotice, setBattleNotice] = useState(false);
+    const { party, partyRef, loadParty, replaceParty, addPartyMember, healParty: healTeam } = usePlayerParty();
 
+    const [chooseChicomon, setChicomon] = useState(null);
+    
     useEffect(() => {
-        const game = controller(canvasRef.current, {
-            onEncounter: setEncounter,
+    let game;
+    let cancelled = false;
+
+    
+
+    async function initGame() {
+        const player = await getPlayerOrCreate();
+
+        
+        const partyData = await getParty(player?.id);
+
+        if (cancelled) return;
+        loadParty(partyData);
+        
+
+
+        if (cancelled || !canvasRef.current) return;
+
+        game = controller(canvasRef.current, {
+            onEncounter: (animal) => {
+                if (!partyRef.current.some((member) => member.health > 0)) {
+                    setBattleNotice(true);
+                    requestAnimationFrame(() => gameRef.current?.finishBattle(false));
+                    return;
+                }
+
+                setEncounter(animal);
+            },
             onMenuChange: setMenuOpen,
             onHealerDialog: (isOpen) => setHealerDialog(isOpen ? "offer" : null),
+            onChooseChicomon: setChicomon,
+            player
         });
-        gameRef.current = game;
 
-        return () => {
-            game.cleanup();
-            gameRef.current = null;
-        };
-    }, []);
+        gameRef.current = game;
+    }
+
+    initGame();
+
+    return () => {
+        cancelled = true;
+        game?.cleanup();
+        gameRef.current = null;
+    };
+}, [loadParty, partyRef]);
 
     function finishBattle(outcome) {
-        setParty((currentParty) => currentParty.map((pokemon) => (
-            pokemon.id === outcome.pokemon.id ? outcome.pokemon : pokemon
-        )));
-        gameRef.current?.finishBattle(outcome.defeated);
+        const nextParty = [...outcome.party];
+        if (outcome.capturedPokemon) {
+            nextParty.push(outcome.capturedPokemon);
+        }
+
+        replaceParty(nextParty);
+        gameRef.current?.finishBattle(outcome.removeAnimal);
         setEncounter(null);
     }
 
-    function healParty() {
-        setParty((currentParty) =>
-            currentParty.map((pokemon) => ({
-                ...pokemon,
-                health: getPokemonStats(pokemon).maxHealth,
-            }))
-        );
+    function heal() {
+        healTeam();
         setHealerDialog("healed");
     }
 
-    function closeMenu() {
-        gameRef.current?.closeMenu();
+    
+    async function save() {
+        const game = gameRef.current;
+        if (!game?.player) return;
+
+        const { playerPosition } = game;
+        await saveGame(
+            game.player.id,
+            playerPosition.x,
+            playerPosition.y,
+            game.getMapId(),
+            partyRef.current
+        );
+        game.closeMenu();
     }
 
     function closeHealerDialog() {
@@ -59,18 +105,28 @@ function App() {
     }
 
     return (
-        <>
+        <div className="game-container">
+        
             <canvas ref={canvasRef} className="game-canvas" />
             {encounter && (
                 <BattleScreen
                     key={encounter.id}
                     animal={encounter}
-                    pokemon={party[0]}
+                    party={party}
                     onFinish={finishBattle}
                 />
             )}
+            {battleNotice && (
+                <section className="healer-dialog" role="alertdialog" aria-modal="true" aria-labelledby="battle-notice-title">
+                    <div className="healer-dialog-panel">
+                        <h1 id="battle-notice-title">Equipe sem Pokémon saudável</h1>
+                        <p>Procure a curandeira antes de enfrentar outro animal.</p>
+                        <button onClick={() => setBattleNotice(false)}>Continuar</button>
+                    </div>
+                </section>
+            )}
             {menuOpen && !encounter && (
-                <GameMenu party={party} onClose={closeMenu} />
+                <GameMenu onSave={save} party={party} />
             )}
             {healerDialog && (
                 <section className="healer-dialog" role="dialog" aria-modal="true" aria-labelledby="healer-title">
@@ -83,7 +139,7 @@ function App() {
                         </p>
                         {healerDialog === "offer" ? (
                             <div className="healer-dialog-actions">
-                                <button onClick={healParty}>Curar equipe</button>
+                                <button onClick={heal}>Curar equipe</button>
                                 <button className="secondary" onClick={closeHealerDialog}>Agora não</button>
                             </div>
                         ) : (
@@ -92,7 +148,16 @@ function App() {
                     </div>
                 </section>
             )}
-        </>
+            {chooseChicomon && (
+                <ChooseChicomonScreen
+                    chooseChicomon={chooseChicomon}
+                    onChoose={addPartyMember}
+                    onClose={() => setChicomon(false)}
+                    onRender={()=>gameRef.current?.render()}
+                />
+            )}
+                        
+    </div>
     );
 }
 

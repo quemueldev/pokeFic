@@ -55,7 +55,7 @@ for (let y = 4; y < height - 5; y += 6) {
         if (variation === 1) flowers.push({ x, y });
     }
 }
-const animalSpawns = {
+const caranga = {
     minCount: 2,
     maxCount: 6,
     lanes: [14, 15, 17, 18, 19, 20, 21],
@@ -64,7 +64,51 @@ const animalSpawns = {
         { minX: 38, maxX: 65 },
     ],
     speed: 1.5,
-    species: "chiquito",
+    species: "Caranga", //o erro e que tava com c maiosculo
+}
+const carcaraptor = {
+    minCount: 1,
+    maxCount: 3,
+    lanes: [10, 13, 21, 23, 25, 26],
+    sides: [
+        { minX: 10, maxX: 18 },
+        { minX: 44, maxX: 62 },
+    ],
+    speed: 1.5,
+    species: "Carcaraptor", 
+}
+const gatorio = {
+    minCount: 1,
+    maxCount: 2,
+    lanes: [11, 12, 22, 24,],
+    sides: [
+        { minX: 10, maxX: 18 },
+        { minX: 44, maxX: 62 },
+    ],
+    speed: 1.5,
+    species: "Gatorio", 
+}
+const patochos = {
+    minCount: 1,
+    maxCount: 1,
+    lanes: [28],
+    sides: [
+        { minX: 10, maxX: 18 },
+        { minX: 44, maxX: 62 },
+    ],
+    speed: 1.5,
+    species: "Patocha", 
+}
+const pilocos = {
+    minCount: 2,
+    maxCount: 4,
+    lanes: [8, 9, 21,],
+    sides: [
+        { minX: 10, maxX: 18 },
+        { minX: 44, maxX: 62 },
+    ],
+    speed: 1.5,
+    species: "Piloco", 
 }
 
 export const route1Data = {
@@ -73,7 +117,13 @@ export const route1Data = {
     entrance: { x: entranceX, y: 0 },
     returnEntrance,
     start,
-    animalSpawns: animalSpawns,
+    animalSpawns: { 
+        caranga: caranga, 
+        carcaraptor: carcaraptor,
+        gatochas: gatorio,
+        patochos: patochos,
+        pilocos:pilocos
+    },
     roadCenterAt: getRoadCenter,
     trees,
     plants,

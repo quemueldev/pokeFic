@@ -8,7 +8,7 @@ export function drawAnimal(ctx, animal, tileSize, sprites) {
         sprite,
         animal.x * tileSize,
         animal.y * tileSize,
-        tileSize,
-        tileSize
+        tileSize*2,
+        tileSize*2
     );
 }

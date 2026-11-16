@@ -1,0 +1,13 @@
+falta colcoar opções de ataque dos pokemons, trocar a tela de combate
+$ajeitar o banco de dados par salavar os pokemons,
+preencher o cenario, 
+$criar uma casa entravel 
+
+
+ajustar o combate, 
+fazer o pokemon ganhar nivel, 
+colocar mais pokemon
+
+poder capturar pokemon
+colocar 4 ataques,
+colocar animações

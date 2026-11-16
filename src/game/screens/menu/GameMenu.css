@@ -31,15 +31,7 @@
     font-size: 1.35rem;
 }
 
-.menu-close {
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    font-size: 1.8rem;
-    line-height: 1;
-    cursor: pointer;
-}
+
 
 .menu-option,
 .menu-back {

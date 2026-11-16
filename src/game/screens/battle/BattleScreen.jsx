@@ -1,48 +1,65 @@
 import { useState } from "react";
-import { sprites } from "../../rendering/data/tiles.js";
 import { getPokemonStats, addExperience } from "../../../objects/pokemon/stats.js";
+import { createPartyMember } from "../../../objects/player/party.js";
+import BattleActions from "./components/BattleActions.jsx";
+import BattleArena from "./components/BattleArena.jsx";
 import "./BattleScreen.css";
 
-function HealthBar({ pokemon, health, label }) {
-    const { maxHealth } = getPokemonStats(pokemon);
-
-    return (
-        <div className="battle-status">
-            <div className="battle-name">
-                <strong>{pokemon.name}</strong>
-                <span>NV. {pokemon.level}</span>
-            </div>
-            <div
-                className="health-track"
-                role="progressbar"
-                aria-label={`Vida ${label}`}
-                aria-valuemin={0}
-                aria-valuemax={maxHealth}
-                aria-valuenow={health}
-            >
-                <span
-                    className="health-fill"
-                    style={{ width: `${(health / maxHealth) * 100}%` }}
-                />
-            </div>
-            <span className="health-label">{health}/{maxHealth}</span>
-        </div>
-    );
-}
-
-function BattleScreen({ animal, pokemon, onFinish }) {
+function BattleScreen({ animal, party, onFinish }) {
     const enemyStats = getPokemonStats(animal);
-    const [playerHealth, setPlayerHealth] = useState(pokemon.health);
+    const [battleParty, setBattleParty] = useState(() => party.map((member) => ({ ...member })));
+    const [activePokemonId, setActivePokemonId] = useState(
+        () => party.find((member) => member.health > 0)?.id
+    );
     const [enemyHealth, setEnemyHealth] = useState(enemyStats.maxHealth);
     const [message, setMessage] = useState(`Um ${animal.name} apareceu!`);
     const [result, setResult] = useState(null);
+    const [waitingForEnemy, setWaitingForEnemy] = useState(false);
     const [xpGained, setXpGained] = useState(0);
     const [updatedPokemon, setUpdatedPokemon] = useState(null);
-    const playerSprite = sprites[pokemon.spriteId];
-    const enemySprite = sprites[animal.spriteId];
+    const [capturedPokemon, setCapturedPokemon] = useState(null);
+    const pokemon = battleParty.find((member) => member.id === activePokemonId);
+
+    function enemyTurn(failureMessage, targetPokemon = pokemon) {
+        if (!targetPokemon) return;
+
+        const enemyAttack = getPokemonStats(animal).attack;
+        const remainingPlayerHealth = Math.max(0, targetPokemon.health - enemyAttack);
+        setBattleParty((currentParty) => currentParty.map((member) => (
+            member.id === targetPokemon.id
+                ? { ...member, health: remainingPlayerHealth }
+                : member
+        )));
+
+        if (remainingPlayerHealth === 0) {
+            const nextPokemon = battleParty.find(
+                (member) => member.id !== targetPokemon.id && member.health > 0
+            );
+
+            if (nextPokemon) {
+                setActivePokemonId(nextPokemon.id);
+                setMessage(`${targetPokemon.name} desmaiou. ${nextPokemon.name} entrou na batalha.`);
+                return;
+            } else {
+                setResult("loss");
+                setMessage(`${animal.name} venceu. Sua equipe precisa descansar.`);
+                return;
+            }
+        }
+
+        setMessage(failureMessage);
+    }
+
+    function scheduleEnemyTurn(failureMessage) {
+        setWaitingForEnemy(true);
+        window.setTimeout(() => {
+            enemyTurn(failureMessage);
+            setWaitingForEnemy(false);
+        }, 700);
+    }
 
     function attack() {
-        if (result) return;
+        if (result || waitingForEnemy || !pokemon || pokemon.health <= 0) return;
 
         const playerStats = getPokemonStats(pokemon);
         const damage = Math.max(1, playerStats.attack + Math.floor(Math.random() * 4));
@@ -51,7 +68,7 @@ function BattleScreen({ animal, pokemon, onFinish }) {
 
         if (remainingEnemyHealth === 0) {
             const experience = animal.xpReward;
-            const hurtPokemon = { ...pokemon, health: playerHealth };
+                const hurtPokemon = { ...pokemon };
             const { pokemon: nextPokemon, leveledUp } = addExperience(hurtPokemon, experience);
             setXpGained(experience);
             setUpdatedPokemon(nextPokemon);
@@ -64,25 +81,39 @@ function BattleScreen({ animal, pokemon, onFinish }) {
             return;
         }
 
-        const enemyAttack = getPokemonStats(animal).attack;
-        const remainingPlayerHealth = Math.max(0, playerHealth - enemyAttack);
-        setPlayerHealth(remainingPlayerHealth);
+        scheduleEnemyTurn(
+            `${pokemon.name} causou ${damage} de dano. ` +
+            `${animal.name} respondeu com ${getPokemonStats(animal).attack} de dano.`
+        );
+    }
 
-        if (remainingPlayerHealth === 0) {
-            setResult("loss");
-            setMessage(`${animal.name} venceu. ${pokemon.name} precisa descansar.`);
-        } else {
-            setMessage(
-                `${pokemon.name} causou ${damage} de dano. ` +
-                `${animal.name} respondeu com ${enemyAttack} de dano.`
-            );
-        }
+    function handleCapture() {
+        setCapturedPokemon(createPartyMember(animal, { health: enemyHealth }));
+        setResult("captured");
+        setMessage(`${animal.name} foi capturado!`);
+    }
+
+    function switchPokemon(nextPokemonId) {
+        if (result) return;
+
+        const nextPokemon = battleParty.find((member) => member.id === nextPokemonId);
+        if (!nextPokemon || nextPokemon.health <= 0 || nextPokemon.id === pokemon?.id) return;
+
+        setActivePokemonId(nextPokemon.id);
+        setMessage(`${nextPokemon.name} entrou na batalha.`);
     }
 
     function finishBattle(fled) {
+        const finalParty = battleParty.map((member) => (
+            member.id === updatedPokemon?.id ? updatedPokemon : member
+        ));
+
         onFinish({
-            pokemon: updatedPokemon ?? { ...pokemon, health: playerHealth },
+            party: finalParty,
+            pokemon: updatedPokemon ?? pokemon,
             defeated: result === "win",
+            capturedPokemon,
+            removeAnimal: result === "win" || result === "captured",
             fled,
         });
     }
@@ -91,41 +122,34 @@ function BattleScreen({ animal, pokemon, onFinish }) {
         <main className="battle-screen" aria-label="Tela de batalha">
             <section className="battle-panel">
                 <header className="battle-header">
-                    <span>ENCONTRO</span>
+                    <span>ENCONTROU {enemyStats.name}</span>
                     <h1>Batalha</h1>
                 </header>
 
-                <div className="battle-arena">
-                    <div className="battle-opponent">
-                        <HealthBar pokemon={animal} health={enemyHealth} label="adversário" />
-                        {enemySprite?.src && (
-                            <img className="battle-animal enemy-sprite" src={enemySprite.src} alt={animal.name} />
-                        )}
-                    </div>
-                    <div className="battle-player">
-                        {playerSprite?.src && (
-                            <img className="battle-animal player-sprite" src={playerSprite.src} alt={pokemon.name} />
-                        )}
-                        <HealthBar pokemon={pokemon} health={playerHealth} label="do jogador" />
-                    </div>
-                </div>
+                <BattleArena
+                    animal={animal}
+                    pokemon={pokemon}
+                    enemyHealth={enemyHealth}
+                    playerHealth={pokemon.health}
+                />
 
                 <div className="battle-dialog" aria-live="polite">
                     <p>{message}</p>
-                    <div className="battle-actions">
-                        {result ? (
-                            <button onClick={() => finishBattle(false)}>
-                                Continuar{xpGained ? ` (+${xpGained} XP)` : ""}
-                            </button>
-                        ) : (
-                            <>
-                                <button onClick={attack}>{pokemon.name} atacar</button>
-                                <button className="secondary" onClick={() => finishBattle(true)}>
-                                    Fugir
-                                </button>
-                            </>
-                        )}
-                    </div>
+                    <BattleActions
+                        result={result}
+                        waitingForEnemy={waitingForEnemy}
+                        xpGained={xpGained}
+                        pokemon={pokemon}
+                        party={battleParty}
+                        enemyHealth={enemyHealth}
+                        maxEnemyHealth={enemyStats.maxHealth}
+                        onAttack={attack}
+                        onCapture={handleCapture}
+                        onCaptureFailure={() => scheduleEnemyTurn(`A captura falhou! ${animal.name} atacou.`)}
+                        onSwitch={switchPokemon}
+                        onFlee={() => finishBattle(true)}
+                        onContinue={() => finishBattle(false)}
+                    />
                 </div>
             </section>
         </main>

@@ -11,11 +11,11 @@ import {
     houses2,
     ranches,
     bigHouse,
+    playerHouse,
 } from "./data/city1.js";
 import drawController from "../../objects/initializer.js";
 import { roadTileIds } from "../../objects/environment/road.js";
 import { setMapTile } from "../../objects/utils.js";
-import { drawBigHouse } from "../../objects/environment/house.js";
 
 const treeTileIds = new Set([136, 148, 160]);
 
@@ -68,6 +68,8 @@ function drawMap(ctx, tileSize, camera, canvas, player) {
         drawLake,
         drawRoad,
         drawHealer,
+        drawBigHouse,
+        drawPlayerHouse
     } = drawController();
 
     _drawMap(map, ctx, tileSize, camera, canvas.width, canvas.height);
@@ -118,27 +120,13 @@ function drawMap(ctx, tileSize, camera, canvas, player) {
     ranches.forEach((ranch) => {
         drawRanch(ctx, map, ranch.x, ranch.y, tileSize, sprites);
     });
-    drawLake(ctx, map, city1Data.lake.x, city1Data.lake.y, tileSize, sprites);
     city1Data.fences.forEach((fence) => {
-        drawFence(
-            ctx,
-            map,
-            fence.x,
-            fence.y,
-            tileSize,
-            sprites,
-            fence.pattern
-        );
+        drawFence(ctx,map,fence.x,fence.y,tileSize,sprites,fence.pattern);
     });
 
-    drawHealer(
-        ctx,
-        map,
-        city1Data.healer.x,
-        city1Data.healer.y,
-        tileSize,
-        sprites
-    );
+    drawLake(ctx, map, city1Data.lake.x, city1Data.lake.y, tileSize, sprites);
+    drawHealer(ctx,map,city1Data.healer.x,city1Data.healer.y,tileSize,sprites);
+    drawPlayerHouse(ctx, map, playerHouse.x, playerHouse.y, tileSize, sprites);
     drawPlayer(ctx, player, tileSize, sprites);
 
     return map;

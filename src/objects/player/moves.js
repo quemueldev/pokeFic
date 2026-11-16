@@ -15,10 +15,14 @@ const blockedTiles = [
     108,
     301,302,300,283,284,282, 
     ...fenceTileIds,
+    491,
 ];
 const entrances = [201, 202, 203];
 
-export function handleMove(key, map, player, onEnterMap, onAnimalCollision) {
+const houseDoor = [471, 472];
+const houseEntrance = [218,219];
+
+export function handleMove(key, map, player, onEnterMap, onAnimalCollision, onEnterHouse) {
     if (!map.length || !map[0].length) return;
 
     const width = map[0].length;
@@ -67,6 +71,10 @@ export function handleMove(key, map, player, onEnterMap, onAnimalCollision) {
         onEnterMap?.(tileId);
         return true;
     }
+    if (houseEntrance.includes(tileId) || houseDoor.includes(tileId)){
+        onEnterHouse?.(tileId)
+        return true;
+    }
 
     // Bloqueia a passagem por objetos ou construções que não podem ser atravessadas.
     if (blockedTiles.includes(tileId)) {
@@ -74,8 +82,16 @@ export function handleMove(key, map, player, onEnterMap, onAnimalCollision) {
     }
 
     if (isAnimalTile(tileId)) {
-        onAnimalCollision?.({ tileId, x: nextX, y: nextY });
-        return;
+        try{
+            
+            onAnimalCollision({ tileId, x: nextX, y: nextY });
+            console.log('ta passando')
+
+            return;
+        } catch (err){
+            console.log(err)
+        }
+        
     }
 
     player.x = nextX;

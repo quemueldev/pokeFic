@@ -3,7 +3,8 @@ import { sprites } from "../../rendering/data/tiles.js";
 import { getPokemonStats } from "../../../objects/pokemon/stats.js";
 import "./GameMenu.css";
 
-function GameMenu({ party, onClose }) {
+
+function GameMenu({ onSave, party = [] }) {
     const [page, setPage] = useState("home");
 
     return (
@@ -11,8 +12,8 @@ function GameMenu({ party, onClose }) {
             <section className="game-menu-panel">
                 <header className="game-menu-header">
                     <h1>{page === "home" ? "Menu" : "Pokémons"}</h1>
-                    <button className="menu-close" onClick={onClose} aria-label="Fechar menu">
-                        ×
+                    <button onClick={()=> onSave()}>
+                        salvar jogo
                     </button>
                 </header>
 
@@ -30,7 +31,7 @@ function GameMenu({ party, onClose }) {
                             {party.map((pokemon) => {
                                 const sprite = sprites[pokemon.spriteId];
                                 const { maxHealth, attack, xpToNextLevel } = getPokemonStats(pokemon);
-
+                                console.log(pokemon)
                                 return (
                                     <article className="pokemon-card" key={pokemon.id}>
                                         {sprite?.src && (
@@ -57,7 +58,7 @@ function GameMenu({ party, onClose }) {
                         </button>
                     </>
                 )}
-                <p className="menu-hint">Pressione E para fechar</p>
+                <p className="menu-hint">Pressione E ou R para fechar</p>
             </section>
         </main>
     );

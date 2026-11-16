@@ -1,6 +1,7 @@
 // Seleciona qual mapa será desenhado na tela e centraliza a renderização do jogo em um único ponto de entrada.
 import { spritesLoaded } from "./data/tiles.js";
 import { drawMap as drawCity1 } from "./drawCity1.js";
+import { drawPlayerHome } from "./drawPlayerHome.js";
 import drawRoute1 from "./drawRoute1.js";
 
 export default function HandleDraw() {
@@ -22,6 +23,9 @@ export default function HandleDraw() {
                 break;
             case 1:
                 map = drawRoute1(ctx, tileSize, camera, canvas, player, animals);
+                break;
+            case 2:
+                map = drawPlayerHome(ctx,tileSize,canvas,player);
                 break;
             default:
                 map = drawCity1(ctx, tileSize, camera, canvas, player);

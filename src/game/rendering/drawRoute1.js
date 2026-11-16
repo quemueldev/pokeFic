@@ -77,7 +77,7 @@ function drawRoute1(ctx, tileSize, camera, canvas, player, animals) {
     }
 
     // Depois de basear o mapa, desenha as entidades decorativas e o jogador por cima.
-    animals.forEach((animal) => {
+    Object.values(animals).forEach((animal) => {
         drawAnimal(ctx, animal, tileSize, sprites);
     });
     drawPlayer(ctx, player, tileSize, sprites);

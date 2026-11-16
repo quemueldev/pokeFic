@@ -13,6 +13,7 @@ export const city1Data = {
     height: 40,
     entrance: { x: 30, y: 0 },
     returnStart: { x: 30, y: 1 },
+    returnHouseStart: {x:37,y: 8},
     healer: { x: 25, y: 7 },
     lake: { x: 6, y: 14 },
     fences,
@@ -28,11 +29,13 @@ const bigHouse =[
     {x :28, y :12}
 ]
 const houses2 =[
-    {x:14, y:5}
+    {x:14, y:5},
+    {x:28, y:22}
 ];
 const ranches =[
     {x: 10, y: 3}
 ];
+const playerHouse = {x:34, y : 5}
 
 // Gera uma cerca de árvores ao redor do mapa para emoldurar o cenário urbano.
 const trees = [
@@ -128,5 +131,5 @@ const grasses = [];
 export { 
     trees, houses, plants, flowers, 
     mushrooms, grasses, houses2, ranches,
-    bigHouse 
+    bigHouse, playerHouse
 };

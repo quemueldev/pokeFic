@@ -6,6 +6,11 @@ const houseTiles = [
     [192, 193, 195, 193, 194],
     [204, 205, 217, 205, 207],
 ];
+const playerHouseTiles = [
+    [180, 181, 181, 183, 182],
+    [192, 193, 195, 193, 194],
+    [204, 205, 218, 219, 207],
+];
 
 const ranchTiles = [
     [93, 94, 95],
@@ -47,7 +52,9 @@ export function drawBigHouse(ctx, x, y, size, sprites, mapa){
     _drawStructure(ctx, mapa, x, y, size, sprites, houseTowerTiles);
     _drawStructure(ctx, mapa, x+3, y+1, size, sprites, tinyHouseTiles);
 }
-
+export function drawPlayerHouse(ctx,map,x, y, size, sprites){
+    _drawStructure(ctx,map,x,y,size,sprites, playerHouseTiles)
+}
 
 function _drawStructure(ctx, mapa, x, y, size, sprites, tiles) {
     _placeHouse(x, y, mapa, tiles);

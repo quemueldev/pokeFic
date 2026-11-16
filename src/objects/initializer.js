@@ -1,5 +1,5 @@
 // Centraliza os métodos de desenho usados em todos os mapas para facilitar a chamada de cada elemento visual.
-import { drawBigHouse, drawHouse, drawHouse2, drawRanch } from "./environment/house.js";
+import { drawBigHouse, drawHouse, drawHouse2, drawPlayerHouse, drawRanch } from "./environment/house.js";
 import drawFence from "./environment/fence.js";
 import drawLake from "./environment/lake.js";
 import { drawPlayer } from "./player/draw";
@@ -15,6 +15,7 @@ export default function drawController() {
         drawBigHouse,
         drawHouse2,
         drawRanch,
+        drawPlayerHouse,
         drawFence,
         drawLake,
         drawRoad,

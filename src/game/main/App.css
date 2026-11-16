@@ -63,3 +63,44 @@ canvas {
 .healer-dialog-panel button.secondary {
   background: transparent;
 }
+
+
+.choose-chicomon {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #101914b8;
+  color: #f7f0d7;
+  font-family: system-ui, sans-serif;
+}
+
+.choose-chicomon-panel {
+  width: min(100%, 380px);
+  padding: 20px;
+  border: 2px solid #d5bd79;
+  border-radius: 10px;
+  background: #1d2b29;
+  box-shadow: 0 16px 48px #0008;
+}
+
+.choose-chicomon-panel p {
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.choose-chicomon-panel button {
+  padding: 10px 14px;
+  border: 1px solid #718268;
+  border-radius: 6px;
+  background: #33453c;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.choose-chicomon-panel button:hover {
+  background: #40594a;
+}
