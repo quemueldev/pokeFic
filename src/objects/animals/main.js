@@ -5,12 +5,13 @@ export function isAnimalTile(tileId) {
 export function placeAnimalsOnMap(animals, map) {
     animals.forEach((animal) => {
         const x = Math.round(animal.x);
+        const y = Math.round(animal.y);
         const cells = [];
 
         for (let offsetY = 0; offsetY < 2; offsetY++) {
             for (let offsetX = 0; offsetX < 2; offsetX++) {
                 const cellX = x + offsetX;
-                const cellY = animal.y + offsetY;
+                const cellY = y + offsetY;
                 const row = map[cellY];
 
                 if (!row || cellX < 0 || cellX >= row.length || row[cellX] !== 132) {

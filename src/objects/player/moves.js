@@ -1,5 +1,4 @@
 // Controla a movimentação do jogador em tiles, validando limites, colisões e portas de transição entre mapas.
-import { isAnimalTile } from "../animals/main.js";
 import { fenceTileIds } from "../environment/fence.js";
 
 const blockedTiles = [
@@ -22,7 +21,7 @@ const entrances = [201, 202, 203];
 const houseDoor = [471, 472];
 const houseEntrance = [218,219];
 
-export function handleMove(key, map, player, onEnterMap, onAnimalCollision, onEnterHouse) {
+export function handleMove(key, map, player, onEnterMap, onEnterHouse, onGrassEncounter) {
     if (!map.length || !map[0].length) return;
 
     const width = map[0].length;
@@ -81,20 +80,8 @@ export function handleMove(key, map, player, onEnterMap, onAnimalCollision, onEn
         return;
     }
 
-    if (isAnimalTile(tileId)) {
-        try{
-            
-            onAnimalCollision({ tileId, x: nextX, y: nextY });
-            console.log('ta passando')
-
-            return;
-        } catch (err){
-            console.log(err)
-        }
-        
-    }
-
     player.x = nextX;
     player.y = nextY;
+    if (tileId === 39) onGrassEncounter?.();
     return true;
 }

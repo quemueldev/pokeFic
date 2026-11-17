@@ -63,7 +63,7 @@ export default function drawRoad(
     const place = (x, y, id, rotated = false) =>
         putTile(map, ctx, size, sprites, x, y, id, rotated);
 
-    for (let x = startX; x <= turnX ; x++) {
+    for (let x = startX; x <= 50 ; x++) {
         place(x, startY - 1, getTile(topTiles, x, startY), true);
         place(x, startY, getTile(centerTiles, x, startY), true);
         place(x, startY + 1, getTile(bottomTiles, x, startY), true);
@@ -74,8 +74,18 @@ export default function drawRoad(
         place(turnX, y, getTile(centerTiles, turnX, y));
         place(turnX + 1, y, getTile(bottomTiles, turnX, y));
     }
+    for (let x = startX+24; x <= 50 ; x++) {
+        place(x, startY +9, getTile(topTiles, x, startY), true);
+        place(x, startY+10, getTile(centerTiles, x, startY), true);
+        place(x, startY +11, getTile(bottomTiles, x, startY), true);
+    }
+    for (let x = startX; x <= 25 ; x++) {
+        place(x, startY +15, getTile(topTiles, x, startY), true);
+        place(x, startY+16, getTile(centerTiles, x, startY), true);
+        place(x, startY +17, getTile(bottomTiles, x, startY), true);
+    }
 
-    for (let y = startY + 11; y >= endY + 11; y--) {
+    for (let y = startY + 17; y >= endY + 11; y--) {
         place(turnX - 5, y, getTile(topTiles, turnX, y));
         place(turnX - 4, y, getTile(centerTiles, turnX, y));
         place(turnX - 3, y, getTile(bottomTiles, turnX, y));
@@ -102,6 +112,20 @@ export function drawRouteRoad(map, ctx, size, sprites, roadCenterAt, startY = 0)
     }
 
     return roadTileIds;
+}
+
+export function drawRouteExit(map, ctx, size, sprites, entrance, bounds, tileIds = [201, 202, 203]) {
+    tileIds.forEach((tileId, index) => {
+        const x = entrance.x - 1 + index;
+        setMapTile(map, x, entrance.y, tileId);
+
+        if (
+            x < bounds.startX || x >= bounds.endX ||
+            entrance.y < bounds.startY || entrance.y >= bounds.endY
+        ) return;
+
+        drawTile(ctx, sprites?.[tileId], x, entrance.y, size, false);
+    });
 }
 
 //route1

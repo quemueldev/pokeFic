@@ -4,94 +4,167 @@
     z-index: 1;
     display: grid;
     place-items: center;
-    padding: 20px;
-    background: #101914b8;
+    padding: clamp(12px, 3vw, 28px);
+    background:
+        repeating-linear-gradient(90deg, transparent 0 31px, #d2e89c0a 31px 32px),
+        #101914e8;
     color: #f7f0d7;
-    font-family: system-ui, sans-serif;
+    font-family: "Courier New", monospace;
 }
 
 .game-menu-panel {
-    width: min(100%, 380px);
-    padding: 20px;
-    border: 2px solid #d5bd79;
-    border-radius: 10px;
-    background: #1d2b29;
-    box-shadow: 0 16px 48px #0008;
+    width: min(100%, 560px);
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    padding: 18px;
+    border: 4px solid var(--game-frame, #f0df9e);
+    border-radius: 2px;
+    outline: 4px solid var(--game-ink, #17241d);
+    background: var(--game-panel, #20352c);
+    box-shadow: 0 20px 60px #080f0cbb;
 }
 
 .game-menu-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 18px;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #526849;
+}
+
+.game-menu-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: #d7cd98;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
 }
 
 .game-menu-header h1 {
-    margin: 0;
+    color: #fff3bd;
     font-size: 1.35rem;
+    text-transform: uppercase;
 }
 
-
+.game-menu button {
+    border-radius: 2px;
+    font: inherit;
+    cursor: pointer;
+}
+.container-btns{
+    display: flex;
+    gap: 20px;
+}
+.menu-save {
+    min-height: 38px;
+    padding: 7px 12px;
+    border: 2px solid #efcf83;
+    background: #a97532;
+    color: #17241d;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.menu-out{
+    min-height: 38px;
+    padding: 7px 12px;
+    border: 2px solid #efcf83;
+    background: #a97532;
+    color: #17241d;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
 
 .menu-option,
 .menu-back {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #718268;
-    border-radius: 6px;
-    background: #33453c;
-    color: inherit;
-    font: inherit;
+    padding: 13px 14px;
+    border: 2px solid #708365;
+    background: #2d4638;
+    color: #fff4d0;
+    font-weight: 700;
     text-align: left;
-    cursor: pointer;
 }
 
 .menu-option {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.menu-option span {
+    color: #f0df9e;
+    font-size: 1.15rem;
 }
 
 .menu-option:hover,
-.menu-back:hover {
-    background: #40594a;
+.menu-back:hover,
+.menu-save:hover {
+    filter: brightness(1.16);
+    transform: translateY(-2px);
 }
 
 .pokemon-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
+    max-height: min(52dvh, 420px);
     margin-bottom: 14px;
+    overflow-y: auto;
 }
 
 .pokemon-card {
-    display: flex;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
     align-items: center;
-    gap: 14px;
-    padding: 12px;
-    border: 1px solid #536a4c;
-    border-radius: 6px;
-    background: #263733;
+    gap: 12px;
+    padding: 10px;
+    border: 2px solid #536a4c;
+    background: #17251f;
 }
 
 .pokemon-card img {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     image-rendering: pixelated;
 }
 
 .pokemon-info {
     display: grid;
-    gap: 3px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 10px;
+    min-width: 0;
+}
+
+.pokemon-info strong {
+    grid-column: 1 / -1;
+    color: #fff3bd;
 }
 
 .pokemon-info span {
-    color: #c4bd9f;
-    font-size: 0.85rem;
+    color: #c4d0ad;
+    font-size: 0.72rem;
+    overflow-wrap: anywhere;
 }
 
-.menu-hint {
-    margin: 16px 0 0;
-    color: #c4bd9f;
-    font-size: 0.8rem;
+.pokemon-empty {
+    padding: 18px 12px;
+    border: 2px dashed #708365;
+    color: #c4d0ad;
     text-align: center;
+}
+
+@media (max-width: 440px) {
+    .game-menu-panel {
+        padding: 14px;
+    }
+
+    .pokemon-info {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
 }

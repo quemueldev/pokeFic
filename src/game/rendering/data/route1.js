@@ -1,3 +1,6 @@
+import { routefenceRoad } from "../../../objects/environment/fence";
+import { generateRandomPositions } from "../../../objects/utils";
+
 // Define a geometria e os elementos decorativos da rota 1, como árvores, flores, plantas e a posição inicial do jogador.
 const width = 70;
 const height = 40;
@@ -13,24 +16,11 @@ function getRoadCenter(y) {
 }
 
 // Gera árvores ao redor da estrada, com variações para dar um visual mais natural.
+const fences = [
+    {x:27, y:0, pattern: routefenceRoad }
+]
 const trees = [];
-for (let y = 3; y < height - 5; y += 3) {
-    // Mantém um intervalo de 10 linhas sem árvores no centro da rota para abrir o caminho.
-    const emptyRangeStart = 14;
-    const emptyRangeEnd = 22;
-    if (y >= emptyRangeStart && y <= emptyRangeEnd) continue;
 
-    const rowOffset = y % 2 === 0 ? 0 : 2;
-
-    for (let x = 2 + rowOffset; x < width - 2; x += 6) {
-        const roadCenter = getRoadCenter(y);
-        const variation = (x * 7 + y * 11) % 5;
-
-        if (Math.abs(x - roadCenter) > 5 && variation !== 0) {
-            trees.push({ x, y, size: 2 });
-        }
-    }
-}
 
 const start = { x: entranceX, y: height - 2 };
 const returnEntrance = { x: entranceX, y: height - 1 };
@@ -41,8 +31,24 @@ for (let x = 2; x < width - 2; x++) {
     }
 }
 
+
+
 const plants = [];
 const flowers = [];
+const grass = generateRandomPositions(600, 10)
+const mushrooms = [
+    { x: 5, y: 5 }, { x: 7, y: 5 },
+    { x: 62, y: 5 }, { x: 64, y: 5 },
+    { x: 5, y: 35 }, { x: 7, y: 35 },
+    { x: 62, y: 35 }, { x: 64, y: 35 },
+];
+const grassPatches = [
+    { x: 7, y: 7, width: 16, height: 8 },
+    { x: 48, y: 7, width: 16, height: 8 },
+    { x: 7, y: 28, width: 16, height: 8 },
+    { x: 48, y: 28, width: 16, height: 8 },
+];
+
 
 // Distribui plantas e flores em posições que não bloqueiam a estrada.
 for (let y = 4; y < height - 5; y += 6) {
@@ -110,6 +116,61 @@ const pilocos = {
     speed: 1.5,
     species: "Piloco", 
 }
+const macajadas = {
+    minCount: 1,
+    maxCount: 2,
+    lanes: [8, 12, 27, 31],
+    sides: [
+        { minX: 5, maxX: 22 },
+        { minX: 38, maxX: 65 },
+    ],
+    speed: 1.3,
+    species: "Macajada",
+};
+const splinters = {
+    minCount: 1,
+    maxCount: 2,
+    lanes: [9, 13, 26, 30],
+    sides: [
+        { minX: 5, maxX: 22 },
+        { minX: 38, maxX: 65 },
+    ],
+    speed: 1.3,
+    species: "Splinter",
+};
+const magikes = {
+    minCount: 1,
+    maxCount: 2,
+    lanes: [6, 10, 30, 34],
+    sides: [
+        { minX: 5, maxX: 22 },
+        { minX: 38, maxX: 65 },
+    ],
+    speed: 1.1,
+    species: "Magike",
+};
+const bravos = {
+    minCount: 1,
+    maxCount: 2,
+    lanes: [7, 15, 25, 33],
+    sides: [
+        { minX: 5, maxX: 22 },
+        { minX: 38, maxX: 65 },
+    ],
+    speed: 1.4,
+    species: "Bravo",
+};
+const chicos = {
+    minCount: 1,
+    maxCount: 1,
+    lanes: [11, 29],
+    sides: [
+        { minX: 5, maxX: 22 },
+        { minX: 38, maxX: 65 },
+    ],
+    speed: 1.2,
+    species: "Chico",
+};
 
 export const route1Data = {
     width,
@@ -122,10 +183,19 @@ export const route1Data = {
         carcaraptor: carcaraptor,
         gatochas: gatorio,
         patochos: patochos,
-        pilocos:pilocos
+        pilocos:pilocos,
+        macajadas,
+        splinters,
+        magikes,
+        bravos,
+        chicos,
     },
     roadCenterAt: getRoadCenter,
     trees,
     plants,
     flowers,
+    grass,
+    mushrooms,
+    grassPatches,
+    fences
 };

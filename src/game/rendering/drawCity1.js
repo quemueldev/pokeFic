@@ -71,6 +71,20 @@ function drawMap(ctx, tileSize, camera, canvas, player) {
         drawBigHouse,
         drawPlayerHouse
     } = drawController();
+    
+    flowers.forEach((flower) => {
+        drawFlower(ctx, map, flower.x, flower.y, tileSize, sprites);
+    });
+    plants.forEach((plant) => {
+        drawPlant(ctx, map, plant.x, plant.y, tileSize, sprites);
+    });
+    grasses.forEach((grass) => {
+        drawGrass(ctx, map, grass.x, grass.y, tileSize, sprites);
+    });
+    mushrooms.forEach((mushroom) => {
+        drawMushroom(ctx, map, mushroom.x, mushroom.y, tileSize, sprites);
+    });
+
 
     _drawMap(map, ctx, tileSize, camera, canvas.width, canvas.height);
     drawRoad(map, ctx, tileSize, sprites);
@@ -96,18 +110,7 @@ function drawMap(ctx, tileSize, camera, canvas, player) {
     trees.forEach((tree) => {
         drawTree(ctx, map, tree.x, tree.y, tileSize, sprites, tree.size);
     });
-    plants.forEach((plant) => {
-        drawPlant(ctx, map, plant.x, plant.y, tileSize, sprites);
-    });
-    flowers.forEach((flower) => {
-        drawFlower(ctx, map, flower.x, flower.y, tileSize, sprites);
-    });
-    grasses.forEach((grass) => {
-        drawGrass(ctx, map, grass.x, grass.y, tileSize, sprites);
-    });
-    mushrooms.forEach((mushroom) => {
-        drawMushroom(ctx, map, mushroom.x, mushroom.y, tileSize, sprites);
-    });
+   
     houses.forEach((house) => {
         drawHouse(ctx, house.x, house.y, tileSize, sprites, map);
     });

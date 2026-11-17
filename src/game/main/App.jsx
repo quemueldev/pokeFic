@@ -4,10 +4,13 @@ import "./App.css";
 import controller from "./AppController.jsx";
 import BattleScreen from "../screens/battle/BattleScreen.jsx";
 import GameMenu from "../screens/menu/GameMenu.jsx";
+import VirtualDPad from "./VirtualDPad.jsx";
 import { getPlayerOrCreate, saveGame } from "../../services/db.js";
 import ChooseChicomonScreen from "../screens/chooseChicomon/choose.jsx";
 import { getParty } from "../../services/pokeChico_db.js";
 import { usePlayerParty } from "./usePlayerParty.js";
+import { playerHouseData } from "../rendering/data/playerHouse.js";
+import { createPartyMember } from "../../objects/player/party.js";
 
 function App() {
 
@@ -17,7 +20,8 @@ function App() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [healerDialog, setHealerDialog] = useState(null);
     const [battleNotice, setBattleNotice] = useState(false);
-    const { party, partyRef, loadParty, replaceParty, addPartyMember, healParty: healTeam } = usePlayerParty();
+    const [interactionHint, setInteractionHint] = useState(null);
+    const { party, partyRef, loadParty, replaceParty, healParty: healTeam } = usePlayerParty();
 
     const [chooseChicomon, setChicomon] = useState(null);
     
@@ -34,8 +38,10 @@ function App() {
         const partyData = await getParty(player?.id);
 
         if (cancelled) return;
-        loadParty(partyData);
-        
+        const loadedParty = loadParty(partyData);
+        if (loadedParty.length > 0) {
+            playerHouseData.pokeChicos.length = 0;
+        }
 
 
         if (cancelled || !canvasRef.current) return;
@@ -53,6 +59,8 @@ function App() {
             onMenuChange: setMenuOpen,
             onHealerDialog: (isOpen) => setHealerDialog(isOpen ? "offer" : null),
             onChooseChicomon: setChicomon,
+            onInteractionHint: setInteractionHint,
+            canChooseStarter: () => partyRef.current.length === 0,
             player
         });
 
@@ -79,6 +87,33 @@ function App() {
         setEncounter(null);
     }
 
+    async function chooseStarter(pokemon) {
+        if (partyRef.current.length > 0) {
+            throw new Error("Você já tem um Pokémon na party.");
+        }
+
+        const game = gameRef.current;
+        if (!game?.player?.id) throw new Error("O jogador ainda não foi carregado.");
+
+        const nextParty = [...partyRef.current, createPartyMember(pokemon)];
+
+        const { playerPosition } = game;
+        const result = await saveGame(
+            game.player.id,
+            playerPosition.x,
+            playerPosition.y,
+            game.getMapId(),
+            nextParty
+        );
+        if (!result.ok) throw result.error;
+
+        replaceParty(nextParty);
+        loadParty(nextParty)
+        gameRef.current.render()
+        gameRef.current.refreshInteractionHint()
+    }
+    //localStorage.clear()
+    
     function heal() {
         healTeam();
         setHealerDialog("healed");
@@ -90,24 +125,41 @@ function App() {
         if (!game?.player) return;
 
         const { playerPosition } = game;
-        await saveGame(
+        const result = await saveGame(
             game.player.id,
             playerPosition.x,
             playerPosition.y,
             game.getMapId(),
             partyRef.current
         );
-        game.closeMenu();
+        if (result.ok) game.closeMenu();
     }
 
     function closeHealerDialog() {
         gameRef.current?.closeHealerDialog();
     }
 
+    function closeMenu() {
+        gameRef.current?.closeMenu();
+    }
+
     return (
         <div className="game-container">
         
             <canvas ref={canvasRef} className="game-canvas" />
+            {!menuOpen && !encounter && !healerDialog && !chooseChicomon && !battleNotice && (
+                <VirtualDPad
+                    onDirection={(direction) => gameRef.current?.handleInput(direction)}
+                    interactionHint={interactionHint}
+                    onInteract={() => gameRef.current?.handleInput("Space")}
+                />
+            )}
+            {interactionHint && !menuOpen && !encounter && !healerDialog && !chooseChicomon && !battleNotice && (
+                <div className="interaction-hint" role="status" aria-live="polite">
+                    <kbd>ESPAÇO</kbd>
+                    <span>{interactionHint}</span>
+                </div>
+            )}
             {encounter && (
                 <BattleScreen
                     key={encounter.id}
@@ -126,11 +178,12 @@ function App() {
                 </section>
             )}
             {menuOpen && !encounter && (
-                <GameMenu onSave={save} party={party} />
+                <GameMenu onSave={save} party={party} onClose={closeMenu} />
             )}
             {healerDialog && (
                 <section className="healer-dialog" role="dialog" aria-modal="true" aria-labelledby="healer-title">
                     <div className="healer-dialog-panel">
+                        <span className="healer-kicker">CENTRO POKÉMON</span>
                         <h1 id="healer-title">Curandeira</h1>
                         <p>
                             {healerDialog === "offer"
@@ -148,10 +201,10 @@ function App() {
                     </div>
                 </section>
             )}
-            {chooseChicomon && (
+            {chooseChicomon && party.length === 0 && (
                 <ChooseChicomonScreen
                     chooseChicomon={chooseChicomon}
-                    onChoose={addPartyMember}
+                    onChoose={chooseStarter}
                     onClose={() => setChicomon(false)}
                     onRender={()=>gameRef.current?.render()}
                 />

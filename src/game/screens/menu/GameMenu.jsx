@@ -4,17 +4,21 @@ import { getPokemonStats } from "../../../objects/pokemon/stats.js";
 import "./GameMenu.css";
 
 
-function GameMenu({ onSave, party = [] }) {
+function GameMenu({ onSave, party = [],onClose}) {
     const [page, setPage] = useState("home");
 
     return (
         <main className="game-menu" aria-label="Menu do jogo">
             <section className="game-menu-panel">
                 <header className="game-menu-header">
-                    <h1>{page === "home" ? "Menu" : "Pokémons"}</h1>
-                    <button onClick={()=> onSave()}>
-                        salvar jogo
-                    </button>
+                    <div>
+                        <span className="game-menu-kicker">POKE CHICO / PAUSA</span>
+                        <h1>{page === "home" ? "Menu" : "Pokémons"}</h1>
+                    </div>
+                    <div className="container-btns">
+                        <button onClick={()=>onClose()} className="menu-out">Sair</button>
+                        <button className="menu-save" onClick={() => onSave()}>Salvar</button>
+                    </div>
                 </header>
 
                 {page === "home" ? (
@@ -28,10 +32,11 @@ function GameMenu({ onSave, party = [] }) {
                 ) : (
                     <>
                         <div className="pokemon-list">
-                            {party.map((pokemon) => {
+                            {party.length === 0 ? (
+                                <p className="pokemon-empty">Sua equipe está vazia.</p>
+                            ) : party.map((pokemon) => {
                                 const sprite = sprites[pokemon.spriteId];
                                 const { maxHealth, attack, xpToNextLevel } = getPokemonStats(pokemon);
-                                console.log(pokemon)
                                 return (
                                     <article className="pokemon-card" key={pokemon.id}>
                                         {sprite?.src && (
@@ -58,7 +63,6 @@ function GameMenu({ onSave, party = [] }) {
                         </button>
                     </>
                 )}
-                <p className="menu-hint">Pressione E ou R para fechar</p>
             </section>
         </main>
     );

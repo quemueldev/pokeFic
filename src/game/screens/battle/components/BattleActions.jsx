@@ -6,6 +6,7 @@ function BattleActions({
     waitingForEnemy,
     xpGained,
     pokemon,
+    moves,
     party,
     enemyHealth,
     maxEnemyHealth,
@@ -18,34 +19,52 @@ function BattleActions({
 }) {
     return (
         <div className="battle-controls">
-            <div className="battle-actions">
+            <div className="battle-move-grid">
                 {result ? (
-                    <button onClick={onContinue}>
-                        Continuar{xpGained ? ` (+${xpGained} XP)` : ""}
+                    <button className="battle-command continue-command" onClick={onContinue}>
+                        <span className="move-category">RESULTADO</span>
+                        <span className="move-name">Continuar{xpGained ? ` (+${xpGained} XP)` : ""}</span>
                     </button>
                 ) : waitingForEnemy ? (
-                    <span className="battle-turn-message">Turno do adversário...</span>
+                    <span className="battle-wait-message" role="status">Turno do adversário...</span>
                 ) : (
-                    <>
-                        <button onClick={onAttack}>{pokemon.name} atacar</button>
+                    moves.map((move) => (
+                            <button
+                                className={`battle-command move-${move.type === "magia" ? "magic" : "physical"}`}
+                                key={move.id}
+                                onClick={() => onAttack(move)}
+                            >
+                                <span className="move-category">
+                                    {move.type === "magia" ? "MAGIA" : "CORPO A CORPO"}
+                                </span>
+                                {move.name}
+                                <span className="move-power">POD. {move.power}</span>
+                            </button>
+                    ))
+                )}
+            </div>
+            {!result && !waitingForEnemy && (
+                <div className="battle-utility-actions">
                         <CaptureButton
                             enemyHealth={enemyHealth}
                             maxHealth={maxEnemyHealth}
                             onCapture={onCapture}
                             onFailure={onCaptureFailure}
                         />
-                        <button className="secondary" onClick={onFlee}>
+                        <button className="battle-utility-button" onClick={onFlee}>
                             Fugir
                         </button>
-                    </>
-                )}
-            </div>
+                </div>
+            )}
             {!result && (
-                <PartySwitch
-                    party={party}
-                    activePokemonId={pokemon.id}
-                    onSwitch={onSwitch}
-                />
+                <div className="battle-party-row">
+                    <span>RESERVA</span>
+                    <PartySwitch
+                        party={party}
+                        activePokemonId={pokemon.id}
+                        onSwitch={onSwitch}
+                    />
+                </div>
             )}
         </div>
     );

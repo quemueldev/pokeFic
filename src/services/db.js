@@ -7,12 +7,14 @@ import { saveParty } from "./pokeChico_db";
 export const saveGame = async(id,x,y,map,party)=>{
     console.log('pelo menos cheogu')
     try{
-        await saveParty(id, party);
+        const partyResult = await saveParty(id, party);
+        if (!partyResult.ok) return partyResult;
         await updateLocalization(id, x, y,map);
+        return partyResult;
     } catch (err){
         console.log('weeoe',err)
+        return { ok: false, error: err };
     }
-    
 }
 export const updateLocalization = async (id, x, y, mapId) => {
     try {
@@ -43,12 +45,11 @@ export const updateLocalization = async (id, x, y, mapId) => {
 };
 
 export const getPlayerOrCreate = async ()=>{
-    if (await getPlayerData()){
-        const data = await getPlayerData();
-       // console.log('caiu aq', data)
-        return data
-    }
-    const resp = await supabaseFetch(
+    const id = getPlayer();
+    const existingPlayer = await getPlayerData(id);
+    if (existingPlayer) return existingPlayer;
+
+    const response = await supabaseFetch(
         'player', {
             method: 'POST',
             headers: {
@@ -56,16 +57,18 @@ export const getPlayerOrCreate = async ()=>{
                 Prefer: 'return=representation'
             },
             body: JSON.stringify({
-                id: getPlayer(),
+                id,
             })
         }
-    )
-    return resp
+    );
+    if (!response.ok) throw new Error('Erro ao criar player');
+
+    const data = await response.json();
+    return data[0] ?? { id };
 }
 
-const getPlayerData = async () => {
+const getPlayerData = async (id) => {
     try {
-        const id = getPlayer()
         const response = await supabaseFetch(
             `player?id=eq.${id}&select=*`
         )

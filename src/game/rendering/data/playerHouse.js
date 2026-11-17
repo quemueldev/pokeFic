@@ -8,9 +8,9 @@ const playerHouseDefault = {
   start,
   bed: { x: 13, y: 2 },
   pokeChicos: [
-    { id: 1, x: 7, y: 7, ...pokemonSpecies.caranga },
-    { id: 2, x: 9, y: 7, ...pokemonSpecies.carcaraptor },
-    { id: 3, x: 11, y: 7, ...pokemonSpecies.caranga }
+    { id: 1, x: 7, y: 7, ...pokemonSpecies.Caranga },
+    { id: 2, x: 9, y: 7, ...pokemonSpecies.Carcaraptor },
+    { id: 5, x: 11, y: 7, ...pokemonSpecies.Piloco }
   ]
 };
 export let request={chico_claimed:false}

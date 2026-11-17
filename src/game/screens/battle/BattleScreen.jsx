@@ -58,11 +58,13 @@ function BattleScreen({ animal, party, onFinish }) {
         }, 700);
     }
 
-    function attack() {
+    function attack(move) {
         if (result || waitingForEnemy || !pokemon || pokemon.health <= 0) return;
 
-        const playerStats = getPokemonStats(pokemon);
-        const damage = Math.max(1, playerStats.attack + Math.floor(Math.random() * 4));
+        const damage = Math.max(
+            1,
+            move.power + (pokemon.level - 1) * 2 + Math.floor(Math.random() * 4)
+        );
         const remainingEnemyHealth = Math.max(0, enemyHealth - damage);
         setEnemyHealth(remainingEnemyHealth);
 
@@ -122,8 +124,11 @@ function BattleScreen({ animal, party, onFinish }) {
         <main className="battle-screen" aria-label="Tela de batalha">
             <section className="battle-panel">
                 <header className="battle-header">
-                    <span>ENCONTROU {enemyStats.name}</span>
-                    <h1>Batalha</h1>
+                    <div className="battle-title-group">
+                        <span>ENCONTRO SELVAGEM</span>
+                        <h1>Batalha</h1>
+                    </div>
+                    <span className="battle-opponent-tag">VS. {enemyStats.name}</span>
                 </header>
 
                 <BattleArena
@@ -134,12 +139,16 @@ function BattleScreen({ animal, party, onFinish }) {
                 />
 
                 <div className="battle-dialog" aria-live="polite">
-                    <p>{message}</p>
+                    <div className="battle-narration">
+                        <span>DIÁRIO DA BATALHA</span>
+                        <p>{message}</p>
+                    </div>
                     <BattleActions
                         result={result}
                         waitingForEnemy={waitingForEnemy}
                         xpGained={xpGained}
                         pokemon={pokemon}
+                        moves={getPokemonStats(pokemon).moves}
                         party={battleParty}
                         enemyHealth={enemyHealth}
                         maxEnemyHealth={enemyStats.maxHealth}

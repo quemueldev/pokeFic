@@ -25,3 +25,9 @@ export default function drawTree(ctx, map, x, y, size, sprites, treeSize = 1) {
         }
     }
 }
+
+export function drawTrees(ctx, map, trees, size, sprites) {
+    trees.forEach((tree) => {
+        drawTree(ctx, map, tree.x, tree.y, size, sprites, tree.size);
+    });
+}

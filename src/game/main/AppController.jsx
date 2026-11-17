@@ -3,22 +3,20 @@ import handleDraw from "../rendering/drawGame.js";
 import { handleMove } from "../../objects/player/moves.js";
 import { route1Data } from "../rendering/data/route1.js";
 import { city1Data } from "../rendering/data/city1.js";
-import { createAnimals } from "../../objects/animals/moves.js";
+import { createWildEncounter } from "../../objects/animals/moves.js";
 import { playerHouseData } from "../rendering/data/playerHouse.js";
 import createGameLoop from "./gameLoop.js";
+import { getPokemonStats } from "../../objects/pokemon/stats.js";
 
-export default function controller(canvas, { onEncounter, onMenuChange, onHealerDialog, onChooseChicomon, player }) {
+export default function controller(canvas, { onEncounter, onMenuChange, onHealerDialog, onChooseChicomon, onInteractionHint, canChooseStarter, player }) {
     // Obtém a função de desenho do mapa e a promessa que indica quando os sprites terminaram de carregar.
     const { drawGame, spritesLoaded } = handleDraw();
     let map = [];
-    const animals = createAnimals(route1Data.animalSpawns);
-
-
     // Estado do jogador em coordenadas lógicas e de renderização suave.
     let xPlayer = player?.last_x;
     let yPlayer = player?.last_y 
     const playerPosition = { x: xPlayer, y: yPlayer, renderX: xPlayer, renderY: yPlayer };
-    const tileSize = 25;
+    const tileSize = 40
     const camera = { x: 0, y: 0 };
     let lastMoveAt = -Infinity;
     const moveCooldown = 150;
@@ -26,20 +24,39 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
     let battleActive = false;
     let menuActive = false;
     let healerDialogActive = false;
-    let encounterAnimal = null;
 
     const gameLoop = createGameLoop({
         canvas,
         tileSize,
         camera,
         playerPosition,
-        animals,
         drawGame,
         getMap: () => map,
         setMap: (nextMap) => { map = nextMap; },
         getMapId: () => mapId,
         canRun: () => !battleActive,
     });
+
+    function getInteractionHint() {
+        if (mapId === 0) {
+            const healer = city1Data.healer;
+            const distance = Math.abs(playerPosition.x - healer.x) + Math.abs(playerPosition.y - healer.y);
+            if (distance <= 1) return "Falar com a curandeira";
+        }
+
+        if (mapId === 2 && canChooseStarter?.()) {
+            const nearbyPokemon = playerHouseData.pokeChicos.find((pokemon) => (
+                Math.abs(playerPosition.x - pokemon.x) + Math.abs(playerPosition.y - pokemon.y) <= 1
+            ));
+            if (nearbyPokemon) return `Escolher ${nearbyPokemon.name}`;
+        }
+
+        return null;
+    }
+
+    function updateInteractionHint() {
+        onInteractionHint?.(getInteractionHint());
+    }
 
     // Detecta as teclas do teclado, evita movimento muito rápido e troca de mapa ao entrar em portas/entradas.
     function keydown(event) {
@@ -70,9 +87,12 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
                 healerDialogActive = true;
                 onHealerDialog(true);
             }; 
-            if (isNearPokeChico){
-                onChooseChicomon(isNearPokeChico);
+            if (isNearPokeChico && canChooseStarter?.()) {
+                const chicomon = getPokemonStats(isNearPokeChico)
+                console.log('antes de enviar', chicomon)
+                onChooseChicomon(chicomon);
             }
+            updateInteractionHint();
             
             gameLoop.stop();
             return;
@@ -117,15 +137,18 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
             playerPosition.renderX = destination.x;
             playerPosition.renderY = destination.y;
         }
-        const onAnimalColision=({tileId})=>{
-            console.log('entrou aq')
-            const animal = animals.find((entry) => entry.mapTileId === tileId);
+        const onGrassEncounter = () => {
+            if (mapId !== 1 || Math.random() >= 0.12) return;
+
+            const animal = createWildEncounter(route1Data.animalSpawns);
             if (!animal) return;
 
             battleActive = true;
             menuActive = false;
-            encounterAnimal = animal;
+            playerPosition.renderX = playerPosition.x;
+            playerPosition.renderY = playerPosition.y;
             gameLoop.stop();
+            gameLoop.render();
             onEncounter(animal);
         }
         const onEnterHouse=()=>{
@@ -141,13 +164,28 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
             map,
             playerPosition,
             onEnterMap,
-            onAnimalColision,
-            onEnterHouse
+            onEnterHouse,
+            onGrassEncounter
         );
         if (!moved) return;
 
         lastMoveAt = now;
+        updateInteractionHint();
+        if (battleActive) {
+            onInteractionHint?.(null);
+            return;
+        }
         gameLoop.start();
+    }
+
+    function handleInput(key) {
+        const isSpace = key === "Space";
+        keydown({
+            key: isSpace ? " " : key,
+            code: isSpace ? "Space" : key,
+            repeat: false,
+            preventDefault() {},
+        });
     }
 
     // Ajusta o tamanho do canvas para a janela e redesenha o mapa.
@@ -158,6 +196,7 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
     }
 
     resize();
+    updateInteractionHint();
     spritesLoaded.then(gameLoop.render).catch((error) => {
         console.error("Não foi possível carregar os sprites do mapa.", error);
     });
@@ -167,32 +206,23 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
 
     return {
         render: gameLoop.render,
+        handleInput,
         player,
         playerPosition,
         getMapId(){
             return mapId
         },
-        finishBattle(removeAnimal) {
-            if (removeAnimal && encounterAnimal) {
-                const animalIndex = animals.findIndex(
-                    (animal) => animal.id === encounterAnimal.id
-                );
-                if (animalIndex !== -1) animals.splice(animalIndex, 1);
-            }
-
-            encounterAnimal = null;
+        finishBattle() {
             battleActive = false;
             gameLoop.render();
-
-            if (mapId === 1 && !gameLoop.isRunning()) {
-                gameLoop.start();
-            }
+            updateInteractionHint();
         },
         closeMenu() {
             if (!menuActive) return;
 
             menuActive = false;
             onMenuChange(false);
+            updateInteractionHint();
             gameLoop.resumeIfNeeded();
         },
         closeHealerDialog() {
@@ -200,8 +230,10 @@ export default function controller(canvas, { onEncounter, onMenuChange, onHealer
 
             healerDialogActive = false;
             onHealerDialog(false);
+            updateInteractionHint();
             gameLoop.resumeIfNeeded();
         },
+        refreshInteractionHint: updateInteractionHint,
         cleanup() {
             window.removeEventListener("resize", resize);
             window.removeEventListener("keydown", keydown);

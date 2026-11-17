@@ -1,57 +1,32 @@
 import { pokemonSpecies } from "../pokemon/data.js";
 
-function randomBetween(min, max, random) {
-    return Math.floor(random() * (max - min + 1)) + min;
-}
+let encounterId = 0;
 
-export function createAnimals(spawns, random = Math.random) {
-  let animalId = 0;
-    return Object.values(spawns).flatMap(spawnData =>{ //junta os array
-      const count = randomBetween(spawnData.minCount, spawnData.maxCount, random);
-        const lanes = [...spawnData.lanes];
+export function createWildEncounter(spawns, random = Math.random) {
+    const weightedSpecies = Object.values(spawns)
+        .map((spawn) => ({
+            species: pokemonSpecies[spawn.species],
+            weight: Math.max(1, (spawn.minCount + spawn.maxCount) / 2),
+        }))
+        .filter((entry) => entry.species);
+    const totalWeight = weightedSpecies.reduce((total, entry) => total + entry.weight, 0);
 
-        for (let index = lanes.length - 1; index > 0; index--) {
-            const swapIndex = Math.floor(random() * (index + 1));
-            [lanes[index], lanes[swapIndex]] = [lanes[swapIndex], lanes[index]];
-        }
+    if (totalWeight === 0) return null;
 
-        return Array.from({ length: count }, (_, index) => {
-            const side = spawnData.sides[randomBetween(0, spawnData.sides.length - 1, random)];
-            const species = pokemonSpecies[spawnData.species];
-            
-            const minX = side.minX;
-            const maxX = side.maxX;
+    let selection = random() * totalWeight;
+    const chosen = weightedSpecies.find((entry) => {
+        selection -= entry.weight;
+        return selection < 0;
+    }) ?? weightedSpecies.at(-1);
+    const species = chosen.species;
 
-            return {
-                ...species,
-              id: `${spawnData.species}-${++animalId}`,
-                type: spawnData.species,
-                level: 1,
-                xp: 0,
-                health: species.baseHealth,
-                mapTileId: -(++animalId),
-                x: randomBetween(minX, maxX, random),
-                y: lanes[index],
-                minX,
-                maxX,
-                speed: spawnData.speed,
-                direction: random() < 0.5 ? -1 : 1,
-            };
-        });
-    })
-    
-}
-
-export function moveAnimals(animals, deltaTime) {
-  animals.forEach(animal => {
-    animal.x += animal.speed * animal.direction * deltaTime;
-
-    if (animal.x >= animal.maxX) {
-      animal.x = animal.maxX;
-      animal.direction = -1;
-    } else if (animal.x <= animal.minX) {
-      animal.x = animal.minX;
-      animal.direction = 1;
-    }
-  });
+    return {
+        ...species,
+        id: `wild-${++encounterId}`,
+        specie: species.name,
+        type: species.name,
+        level: 1,
+        xp: 0,
+        health: species.baseHealth,
+    };
 }

@@ -1,11 +1,8 @@
-import { moveAnimals } from "../../objects/animals/moves.js";
-
 export default function createGameLoop({
     canvas,
     tileSize,
     camera,
     playerPosition,
-    animals,
     drawGame,
     getMap,
     setMap,
@@ -36,7 +33,7 @@ export default function createGameLoop({
             );
         }
 
-        setMap(drawGame(canvas, tileSize, playerPosition, camera, getMapId(), animals));
+        setMap(drawGame(canvas, tileSize, playerPosition, camera, getMapId()));
     }
 
     function animate(timestamp) {
@@ -49,10 +46,6 @@ export default function createGameLoop({
             ? 0
             : Math.min((timestamp - previousFrameTime) / 1000, 0.3);
         previousFrameTime = timestamp;
-
-        if (getMapId() === 1) {
-            moveAnimals(animals, deltaTime);
-        }
 
         const interpolation = 1 - Math.exp(-18 * deltaTime);
         playerPosition.renderX += (playerPosition.x - playerPosition.renderX) * interpolation;
@@ -69,7 +62,7 @@ export default function createGameLoop({
 
         render();
 
-        if (settled && getMapId() !== 1) {
+        if (settled) {
             animationFrame = null;
             previousFrameTime = null;
         } else {
@@ -96,7 +89,7 @@ export default function createGameLoop({
             Math.abs(playerPosition.x - playerPosition.renderX) >= 0.001 ||
             Math.abs(playerPosition.y - playerPosition.renderY) >= 0.001;
 
-        if (animationFrame === null && (getMapId() === 1 || playerIsMoving)) {
+        if (animationFrame === null && playerIsMoving) {
             start();
         }
     }

@@ -1,0 +1,152 @@
+MAPA DO SISTEMA DE INTERACOES
+==============================
+
+Objetivo
+--------
+Este documento mapeia as interacoes atuais do jogo e propoe como componentiza-las para adicionar personas e objetos interativos sem criar uma nova condicao especial no controlador a cada caso.
+
+Estado atual
+------------
+
+1. Entrada do jogador
+   Arquivo: game/main/AppController.jsx
+   - Escuta keydown globalmente.
+   - SPACE procura a curandeira ou um Pokemon inicial usando coordenadas fixas.
+   - E abre e fecha o menu.
+   - R fecha algumas telas manualmente.
+   - A deteccao de proximidade, a decisao sobre qual acao oferecer e o disparo da acao estao no mesmo controlador.
+
+2. Interacao com a curandeira
+   Arquivos: game/rendering/data/city1.js, game/main/AppController.jsx e game/main/App.jsx
+   - A posicao esta em city1Data.healer.
+   - O alcance e Manhattan <= 1 no mapa 0.
+   - SPACE chama onHealerDialog.
+   - App.jsx armazena healerDialog e monta o dialogo da curandeira diretamente no JSX.
+
+3. Escolha do Pokemon inicial
+   Arquivos: game/rendering/data/playerHouse.js, game/main/AppController.jsx, game/main/App.jsx e game/screens/chooseChicomon/choose.jsx
+   - As Pokebolas e especies ficam em playerHouseData.pokeChicos.
+   - O alcance e Manhattan <= 1 no mapa 2.
+   - A opcao so e permitida com party vazia, atraves de canChooseStarter.
+   - SPACE chama onChooseChicomon; App.jsx abre ChooseChicomonScreen.
+   - A tela salva o membro e, apos sucesso, limpa as Pokebolas da casa.
+
+4. Dica de interacao
+   Arquivos: game/main/AppController.jsx, game/main/App.jsx e game/main/App.css
+   - getInteractionHint contem verificacoes especificas para curandeira e iniciais.
+   - AppController envia uma string por onInteractionHint.
+   - App.jsx desenha uma faixa com a tecla SPACE e o texto.
+   - A regra que decide quando mostrar a dica esta duplicada da regra usada ao interagir; isso pode causar divergencia se um dos lados mudar.
+
+5. Desenho de persona
+   Arquivos: objects/personas/draw.js e game/rendering/drawCity1.js
+   - drawHealer desenha a sprite e marca o tile no mapa.
+   - O desenho esta relativamente separado, mas e especifico da curandeira.
+   - objects/personas/actions.js e objects/personas/data/objs.js existem, mas estao vazios.
+
+O que deve ser componentizado
+-----------------------------
+
+A. Definicao declarativa de interagiveis
+   Cada persona ou objeto deve declarar dados, sem implementar deteccao dentro do mapa:
+   - id estavel
+   - nome exibido
+   - mapa onde existe
+   - coordenadas
+   - alcance, inicialmente 1 tile Manhattan
+   - texto da dica
+   - tipo/id da acao
+   - requisitos opcionais, como party vazia
+   - dados visuais necessarios para desenhar
+
+   As especies iniciais podem continuar em playerHouseData, mas cada Pokebola deve ser convertida ou exposta como um interagivel com uma acao do tipo choose-starter.
+
+B. Deteccao e selecao do alvo
+   Criar um modulo pequeno que receba mapa, posicao do jogador e lista de interagiveis e retorne o alvo disponivel mais proximo.
+   - Usar uma unica regra de distancia para a dica e para SPACE.
+   - Filtrar requisitos antes de mostrar a dica ou permitir a acao.
+   - O controlador nao deve saber regras particulares de cada persona.
+
+C. Registro de acoes
+   Usar objects/personas/actions.js como dispatcher/registro por identificador, por exemplo:
+   - talk-to-healer
+   - choose-starter
+   - open-shop
+   - receive-item
+
+   Os dados da persona guardam um actionId; o controlador seleciona o interagivel e envia esse identificador e seus dados ao App. O App ou um action handler executa a acao concreta usando callbacks/servicos existentes. Nao colocar componentes React nem chamadas de banco nos dados estaticos.
+
+D. Dica reutilizavel
+   Criar um componente InteractionPrompt que recebe apenas a dica ativa e, quando necessario, a tecla/acao de entrada.
+   - Deve desaparecer com batalha, menu ou dialogo aberto.
+   - Deve funcionar com teclado agora e permitir trocar o rotulo para toque/controle virtual no mobile depois.
+
+E. Dialogos e fluxos de UI
+   Manter cada fluxo em componente proprio:
+   - HealerDialog: oferta de cura e confirmacao.
+   - ChooseChicomonScreen: escolha e salvamento do inicial.
+   - Futuras telas, como loja ou entrega, nao devem ser adicionadas como novos blocos condicionais grandes dentro de App.jsx.
+
+F. Desenho independente da acao
+   O desenho so recebe dados de render e desenha no mapa. A acao de conversar/comprar/curar fica fora do draw.
+   Para muitas personas, substituir drawHealer por um desenho generico de persona baseado em spriteId, mantendo wrappers apenas quando houver desenho especial.
+
+Arquitetura-alvo
+----------------
+
+route/persona data
+        |
+        v
+interactables registry --> proximity selector <-- player position + map id
+                                    |
+                          active interaction target
+                           /                  \
+                          v                    v
+                InteractionPrompt       SPACE / touch action
+                                                |
+                                                v
+                                      action dispatcher
+                                       /            \
+                                      v              v
+                                  App state       services
+                                      |
+                                      v
+                              dialog/screen component
+
+Responsabilidades sugeridas
+---------------------------
+
+- objects/personas/data/objs.js: definicoes estaticas de personas/interagiveis.
+- objects/personas/actions.js: ids/registro ou dispatch das acoes; sem coordenadas e sem JSX.
+- objects/personas/interactions.js: alcance, requisitos e alvo proximo.
+- objects/personas/draw.js: desenho visual generico/especifico.
+- game/main/AppController.jsx: traduz entrada do teclado/controle, consulta o alvo e notifica a camada React; nao conhece a regra interna da curandeira ou da loja.
+- game/main/App.jsx: estado global, escolhe qual fluxo de UI abrir e liga actions a servicos.
+- game/screens/interactions/InteractionPrompt.jsx: dica contextual.
+- game/screens/interactions/HealerDialog.jsx: fluxo da curandeira.
+- game/screens/chooseChicomon/choose.jsx: fluxo do inicial existente.
+
+Plano de migracao recomendado
+-----------------------------
+
+1. Criar uma lista de interagiveis para curandeira e Pokebolas usando os dados atuais.
+2. Criar uma funcao pura para localizar o alvo e aplicar alcance/requisitos.
+3. Fazer dica e SPACE consultarem a mesma funcao; manter o comportamento atual.
+4. Trocar callbacks especificos por onInteract(interactable), preservando os fluxos atuais no App.
+5. Extrair InteractionPrompt e o dialogo da curandeira do JSX principal.
+6. Adicionar uma persona nova apenas pela configuracao de dados, registro de acao e componente/tela se a acao exigir UI especial.
+7. Cobrir com testes: dentro/fora do alcance, mapa incorreto, party vazia/nao vazia, cancelar e sucesso/falha ao salvar.
+
+Regras para evitar regressao
+---------------------------
+
+- Dica e acao precisam selecionar o mesmo alvo com a mesma regra.
+- Um interagivel bloqueado por requisito nao deve mostrar dica nem executar acao.
+- Renderizacao nunca executa a acao.
+- Dados de mapa nao devem importar React ou servicos de persistencia.
+- Uma acao so altera estado do jogo depois da validacao/salvamento correspondente.
+- SPACE deve continuar funcionando; controles touch futuros devem chamar a mesma funcao de interacao.
+
+Escopo
+------
+Este arquivo e um mapa/guia de componentizacao. Ele nao implementa a arquitetura-alvo nem altera o comportamento atual do jogo.

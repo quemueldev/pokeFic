@@ -1,21 +1,27 @@
-import { pokemonSpecies } from "./data";
+import { attacks, pokemonSpecies } from "./data";
 
 export function getPokemonStats(pokemon) {
+    console.log(pokemon)
 
-    const base = getPokemon(pokemon.specie || pokemon.name);
+    const base = getPokemon(pokemon);
     const levelBonus = Math.max(0, pokemon.level - 1);
     const maxHealth = base.baseHealth + levelBonus * 8;
-
+    console.log('aqui',base, pokemon)
     return {
-        name: pokemon.specie,
+        name: pokemon.specie || base.name,
         maxHealth,
         attack: base.baseAttack + levelBonus * 2,
+        moves: base.attacks.map((attackId) => ({ id: attackId, ...attacks[attackId] })),
         xpToNextLevel: pokemon.level * 50,
-        tile: base.spriteId
+        tile: base.spriteId || pokemon.spriteId
     };
 }
 export function getPokemon(name){
-    return pokemonSpecies[name]
+    const speciesName = typeof name === "string" ? name : name?.specie || name?.name;
+    if (speciesName) return pokemonSpecies[speciesName];
+
+    const speciesId = typeof name === "number" ? name : name?.id;
+    return Object.values(pokemonSpecies).find((species) => species.id === speciesId);
 }
 
 export function addExperience(pokemon, amount) {

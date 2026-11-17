@@ -6,7 +6,7 @@ import drawRoute1 from "./drawRoute1.js";
 
 export default function HandleDraw() {
     // Desenha o mapa atual, limpando a tela e aplicando a deslocamento da câmera antes de renderizar.
-    function drawGame(canvas, tileSize, player, camera, mapId, animals) {
+    function drawGame(canvas, tileSize, player, camera, mapId) {
         const ctx = canvas.getContext("2d");
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -22,7 +22,7 @@ export default function HandleDraw() {
                 map = drawCity1(ctx, tileSize, camera, canvas, player);
                 break;
             case 1:
-                map = drawRoute1(ctx, tileSize, camera, canvas, player, animals);
+                map = drawRoute1(ctx, tileSize, camera, canvas, player);
                 break;
             case 2:
                 map = drawPlayerHome(ctx,tileSize,canvas,player);

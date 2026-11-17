@@ -11,21 +11,13 @@ import { drawHealer } from "./personas/draw.js";
 
 export default function drawController() {
     return {
-        drawHouse,
-        drawBigHouse,
-        drawHouse2,
-        drawRanch,
-        drawPlayerHouse,
-        drawFence,
-        drawLake,
-        drawRoad,
-        drawPlayer,
-        drawTree,
-        drawPlant,
-        drawFlower,
-        drawMushroom,
-        drawGrass,
-        drawAnimal,
-        drawHealer,
+        drawHouse,drawBigHouse,drawHouse2,
+        drawRanch,drawPlayerHouse,
+
+        drawFence,drawLake,drawRoad,
+        drawTree,drawPlant,drawFlower,
+        drawMushroom,drawGrass,
+        
+        drawPlayer,drawAnimal,drawHealer,
     };
 }
