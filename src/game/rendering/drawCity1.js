@@ -1,4 +1,3 @@
-// Monta o cenário da cidade principal, incluindo casas, árvores, grama, rua e acesso ao mapa da rota.
 import { sprites, spritesLoaded } from "./data/tiles.js";
 import {
     city1Data,
@@ -19,7 +18,6 @@ import { setMapTile } from "../../objects/utils.js";
 
 const treeTileIds = new Set([136, 148, 160]);
 
-// Desenha o chão base do mapa na região visível pela câmera, ignorando partes da estrada para não sobrepor a rua.
 function _drawMap(mapa, ctx, tamanho, pov, canvasWidth, canvasHeight) {
     const startX = Math.max(0, Math.floor(pov.x));
     const startY = Math.max(0, Math.floor(pov.y));
@@ -48,7 +46,7 @@ function _drawMap(mapa, ctx, tamanho, pov, canvasWidth, canvasHeight) {
 }
 
 function drawMap(ctx, tileSize, camera, canvas, player) {
-    // Cria uma matriz vazia da cidade, preenchida inicialmente por terreno comum (grama/chão).
+    // cria a matriz 
     const map = Array.from(
         { length: city1Data.height },
         () => Array(city1Data.width).fill(132)

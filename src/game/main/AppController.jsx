@@ -5,14 +5,12 @@ import { route1Data } from "../rendering/data/route1.js";
 import { city1Data } from "../rendering/data/city1.js";
 import { createWildEncounter } from "../../objects/animals/moves.js";
 import { playerHouseData } from "../rendering/data/playerHouse.js";
-import createGameLoop from "./gameLoop.js";
+import createGameLoop from "./hooks/gameLoop.js";
 import { getPokemonStats } from "../../objects/pokemon/stats.js";
 
 export default function controller(canvas, { onEncounter, onMenuChange, onHealerDialog, onChooseChicomon, onInteractionHint, canChooseStarter, player }) {
-    // Obtém a função de desenho do mapa e a promessa que indica quando os sprites terminaram de carregar.
     const { drawGame, spritesLoaded } = handleDraw();
     let map = [];
-    // Estado do jogador em coordenadas lógicas e de renderização suave.
     let xPlayer = player?.last_x;
     let yPlayer = player?.last_y 
     const playerPosition = { x: xPlayer, y: yPlayer, renderX: xPlayer, renderY: yPlayer };

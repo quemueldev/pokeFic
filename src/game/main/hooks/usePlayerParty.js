@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { createPartyMember } from "../../objects/player/party.js";
-import { getPokemon, getPokemonStats } from "../../objects/pokemon/stats.js";
+import { createPartyMember } from "../../../objects/player/party.js";
+import { getPokemon, getPokemonStats } from "../../../objects/pokemon/stats.js";
 
 export function usePlayerParty() {
     const [party, setParty] = useState([]);
@@ -20,7 +20,7 @@ export function usePlayerParty() {
             return [{
                 ...species,
                 id: row.id,
-                databaseId: row.id,
+                databaseId: row.id, // porque? nao me pergunte
                 specie: row.specie,
                 level: row.level,
                 xp: row.xp,

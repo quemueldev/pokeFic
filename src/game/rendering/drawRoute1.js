@@ -13,7 +13,7 @@ import {
     drawTallGrassPatches,
 } from "../../objects/environment/vegeta.js";
 import { route1Data } from "./data/route1.js";
-
+//essa eu componentizei bonitinho
 function drawRoute1(ctx, tileSize, camera, canvas, player) {
     const map = Array.from(
         { length: route1Data.height },

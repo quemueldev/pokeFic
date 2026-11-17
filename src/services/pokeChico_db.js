@@ -2,9 +2,8 @@
 import { supabaseFetch } from "./decorator";
 
 export const saveParty = async (id_player, party) => {
-    if (!Array.isArray(party)) {
+    if (!Array.isArray(party)) 
         return { ok: false, error: new Error("A party está inválida.") };
-    }
 
     try {
         for (const pokemon of party) {
@@ -44,9 +43,9 @@ export const saveParty = async (id_player, party) => {
     }
 };
 
-export const getParty=async(id)=>{
-    
-     try {
+export const getParty = async (id) => {
+
+    try {
         const response = await supabaseFetch(
             `pokechicos?id_player=eq.${id}&select=*`
         )

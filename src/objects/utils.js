@@ -22,15 +22,14 @@ function setMapTile(map, x, y, tileId) {
     }
 
     const row = map[y];
-    if (!row || x < 0 || x >= row.length) {
-        return false;
-    }
+    if (!row || x < 0 || x >= row.length) return false;
 
     row[x] = tileId;
     return true;
 }
 
-function seededRandom(seed) {
+//me arrependi dps |
+function _seededRandom(seed) {
     let value = seed;
 
     return function () {
@@ -40,7 +39,7 @@ function seededRandom(seed) {
 }
 
 function generateRandomPositions(amount, seed) {
-    const random = seededRandom(seed);
+    const random = _seededRandom(seed);
     const positions = [];
 
     for (let i = 0; i < amount; i++) {

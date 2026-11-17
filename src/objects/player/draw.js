@@ -1,16 +1,11 @@
-// Desenha o sprite do personagem do jogador na posição atual, usando a coordenada interpolada para dar suavidade ao movimento.
-function drawPlayer(ctx, player, tamanho, sprites) {
-    const sprite = sprites[109];
-    const pixelX = (player.renderX ?? player.x) * tamanho;
-    const pixelY = (player.renderY ?? player.y) * tamanho;
+import { drawParams, getSprite } from "../utils";
+
+function drawPlayer(ctx, player, size, sprites) {
+    const sprite = getSprite(sprites, 109);
+    const x = (player.renderX ?? player.x);
+    const y = (player.renderY ?? player.y);
     if (sprite?.complete && sprite.naturalWidth > 0) {
-        ctx.drawImage(
-            sprite,
-            pixelX,
-            pixelY,
-            tamanho,
-            tamanho
-        );
+        ctx.drawImage(...drawParams(sprite, x,y,size));
     }
 }
 

@@ -113,6 +113,6 @@ export const attacks = {
     cotovelada: { name: "Cotovelada", power: 27, type: "corpo a corpo" },
     cauda_giratoria: { name: "Cauda giratória", power: 32, type: "corpo a corpo" },
     cabeçada: { name: "Cabeçada", power: 30, type: "corpo a corpo" },
-    esmagamento: { name: "Esmagamento", power: 40, type: "corpo a corpo" },
+    esmagamento: { name: "Esmagamento", power: 60, type: "corpo a corpo" },
     soco_furioso: { name: "Soco furioso", power: 36, type: "corpo a corpo" },
 };

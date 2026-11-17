@@ -1,7 +1,7 @@
 import { attacks, pokemonSpecies } from "./data";
 
 export function getPokemonStats(pokemon) {
-    console.log(pokemon)
+    //console.log(pokemon)
 
     const base = getPokemon(pokemon);
     const levelBonus = Math.max(0, pokemon.level - 1);

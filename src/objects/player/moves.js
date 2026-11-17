@@ -56,13 +56,12 @@ export function handleMove(key, map, player, onEnterMap, onEnterHouse, onGrassEn
             return;
     }
 
-    // Impede que o personagem saia dos limites do mapa.
+    // impede que o personagem saia mapa.
     if (nextX < 0 || nextX >= width || nextY < 0 || nextY >= height) {
         return;
     }
 
     const tileId = map[nextY][nextX];
-    // Entradas de mapa ficam nas bordas; tiles iguais dentro do cenário podem ser aberturas.
     if (
         entrances.includes(tileId) &&
         (nextY === 0 || nextY === height - 1)
@@ -75,7 +74,7 @@ export function handleMove(key, map, player, onEnterMap, onEnterHouse, onGrassEn
         return true;
     }
 
-    // Bloqueia a passagem por objetos ou construções que não podem ser atravessadas.
+    // bloqueia a passagem pelos id que eu botei
     if (blockedTiles.includes(tileId)) {
         return;
     }

@@ -1,5 +1,5 @@
 import { getSprite } from "../utils.js";
-
+//unico enviroment da ia
 export function getVisibleTileBounds(map, camera, canvas, tileSize) {
     const startX = Math.max(0, Math.floor(camera.x));
     const startY = Math.max(0, Math.floor(camera.y));

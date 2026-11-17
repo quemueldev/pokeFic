@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import "./VirtualDPad.css";
-
+// ia que fez dps de eu perguntar um modelo
 function VirtualDPad({ onDirection, interactionHint, onInteract }) {
     const repeatTimer = useRef(null);
 

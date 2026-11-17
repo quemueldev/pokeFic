@@ -4,11 +4,11 @@ import "./App.css";
 import controller from "./AppController.jsx";
 import BattleScreen from "../screens/battle/BattleScreen.jsx";
 import GameMenu from "../screens/menu/GameMenu.jsx";
-import VirtualDPad from "./VirtualDPad.jsx";
+import VirtualDPad from "./components/VirtualDPad.jsx";
 import { getPlayerOrCreate, saveGame } from "../../services/db.js";
 import ChooseChicomonScreen from "../screens/chooseChicomon/choose.jsx";
 import { getParty } from "../../services/pokeChico_db.js";
-import { usePlayerParty } from "./usePlayerParty.js";
+import { usePlayerParty } from "./hooks/usePlayerParty.js";
 import { playerHouseData } from "../rendering/data/playerHouse.js";
 import { createPartyMember } from "../../objects/player/party.js";
 

@@ -2,10 +2,8 @@ import { getPlayer } from "./storage"
 import { supabaseFetch } from "./decorator";
 import { saveParty } from "./pokeChico_db";
 
-
-
 export const saveGame = async(id,x,y,map,party)=>{
-    console.log('pelo menos cheogu')
+   // console.log('pelo menos cheogu')
     try{
         const partyResult = await saveParty(id, party);
         if (!partyResult.ok) return partyResult;
@@ -18,7 +16,7 @@ export const saveGame = async(id,x,y,map,party)=>{
 }
 export const updateLocalization = async (id, x, y, mapId) => {
     try {
-        console.log("Entrou no update", x, y, mapId);
+        //console.log("Entrou no update", x, y, mapId);
 
         const response = await supabaseFetch(
             `player?id=eq.${id}`,
@@ -36,8 +34,8 @@ export const updateLocalization = async (id, x, y, mapId) => {
             }
         );
 
-        console.log("Status:", response.status);
-        console.log("Resposta:", await response.text());
+        return console.log("Status:", response.status); //fds
+        //console.log("Resposta:", await response.text());
 
     } catch (error) {
         console.log("Erro no update:", error);
@@ -58,7 +56,7 @@ export const getPlayerOrCreate = async ()=>{
             },
             body: JSON.stringify({
                 id,
-            })
+            }) //lembrando do default do banco
         }
     );
     if (!response.ok) throw new Error('Erro ao criar player');
